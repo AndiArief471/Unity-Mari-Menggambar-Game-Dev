@@ -16,13 +16,13 @@ public class DialogueManagerTest : MonoBehaviour
     TextMeshProUGUI message;
     static Choice choiceSelected;
     // Start is called before the first frame update
-    void Start()
-    {
-        story = new Story(inkFile.text);
-        message = textBox.transform.GetChild(0).GetComponent<TextMeshProUGUI>();
-        choiceSelected = null;
-        AdvanceDialogue();
-    }
+    // void Start()
+    // {
+    //     story = new Story(inkFile.text);
+    //     message = textBox.transform.GetChild(0).GetComponent<TextMeshProUGUI>();
+    //     choiceSelected = null;
+    //     AdvanceDialogue();
+    // }
 
     // Update is called once per frame
     void Update()
@@ -47,6 +47,10 @@ public class DialogueManagerTest : MonoBehaviour
         }
     }
 
+    public void StartDialogue(TextAsset inkJSON)
+    {
+    }
+
     private void FinishDialogue()
     {
         Debug.Log("End of Dialogue!");
@@ -60,14 +64,14 @@ public class DialogueManagerTest : MonoBehaviour
         StartCoroutine(TypeSentence(currentSentence));
     }
 
-    IEnumerator TypeSentence(string sentence)
+    IEnumerator TypeSentence(string sentence, float delayTime = 0.025f)
     {
         message.text = "";
         Debug.Log(message);
         foreach(char letter in sentence.ToCharArray())
         {
             message.text += letter;
-            yield return null;
+            yield return new WaitForSeconds(delayTime);
         }
         yield return null;
     }
