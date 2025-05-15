@@ -11,11 +11,12 @@ public class Interactable : MonoBehaviour
     {
         playerMovement = FindObjectOfType<PlayerMovement>();
         Debug.Log(playerMovement.moveSpeed);
+        Debug.Log("Test");
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+    
     }
 }
