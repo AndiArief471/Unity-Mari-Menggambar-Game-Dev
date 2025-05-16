@@ -1,22 +1,88 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+// using System.Collections;
+// using System.Collections.Generic;
+// using UnityEngine;
+// using TMPro;
 
-public class NPCInteractionTest : Interactable
-{
-    public TextAsset inkyJSON;
+// public class NPCInteractionTest : Interactable
+// {
+//     [Header("NPC Identity")]
+//     public string npcName;
 
-    [Header("Prompt")]
-    public string textPrompt;
+//     [Header("Dialogue (Optional)")]
+//     public TextAsset inkyJSON;
 
-    public string GetPrompt()
-    {
-        return textPrompt;
-    }
+//     [Header("Speech Bubble")]
+//     public GameObject speechBubble;
+//     public TextMeshProUGUI speechText;
 
-    public override void Interact()
-    {
-        Debug.Log("Start dialogue with: " + inkyJSON.name);
-        // Call your dialogue system here
-    }
-}
+//     [Header("Prompt")]
+//     public string textPrompt;
+
+//     public string GetPrompt()
+//     {
+//         return textPrompt;
+//     }
+
+//     public override void Interact()
+//     {
+//         Debug.Log("Start dialogue with: " + inkyJSON.name);
+//         DialogueManagerTest.Instance.StartDialogue(inkyJSON);
+//     }
+
+//     public void ShowSpeech(string currentSentence)
+//     {
+//         if (speechBubble != null)
+//         {
+//             speechBubble.SetActive(true);
+//             StopAllCoroutines();
+//             StartCoroutine(TypeSentence(currentSentence));
+//         }
+//         else
+//         {
+//             Debug.Log("Bubble Speech is Null");
+//         }
+//     }
+
+//     public void HideSpeech()
+//     {
+//         if (speechBubble != null)
+//         {
+//             speechBubble.SetActive(false);
+//             speechText.text = "";
+//         }
+//     }
+
+//     IEnumerator TypeSentence(string sentence, float delayTime = 0.025f)
+//     {
+//         speechText.text = "";
+//         foreach (char letter in sentence.ToCharArray())
+//         {
+//             speechText.text += letter;
+//             yield return new WaitForSeconds(delayTime);
+//         }
+//         yield return null;
+//     }
+// }
+
+// // using System.Collections;
+// // using System.Collections.Generic;
+// // using UnityEngine;
+
+// // public class NPCInteraction : Interactable
+// // {
+// //     public TextAsset inkyJSON;
+
+// //     [Header("Prompt")]
+// //     public string textPrompt;
+
+// //     public string GetPrompt()
+// //     {
+// //         return textPrompt;
+// //     }
+
+// //     public override void Interact()
+// //     {
+// //         Debug.Log("Start dialogue with: " + inkyJSON.name);
+// //         // Call your dialogue system here
+// //     }
+// // }

@@ -7,69 +7,95 @@ using Ink.Runtime;
 
 public class DialogueManager : MonoBehaviour
 {
-    public TextAsset inkFile;
-    public GameObject textBox;
+    public static DialogueManager Instance;
     public GameObject customButton;
     public GameObject optionPanel;
+    public static bool isDialoguePlaying { get; private set; } = false;
 
     static Story story;
-    TextMeshProUGUI message;
     static Choice choiceSelected;
-    // Start is called before the first frame update
-    void Start()
+    List<string> tags;
+
+    private void Awake()
     {
-        story = new Story(inkFile.text);
-        message = textBox.transform.GetChild(0).GetComponent<TextMeshProUGUI>();
-        choiceSelected = null;
+        if (Instance == null)
+            Instance = this;
+        else
+            Destroy(gameObject);
+    }
+
+    public void StartDialogue(TextAsset inkJSON)
+    {
+        story = new Story(inkJSON.text);
+        isDialoguePlaying = true;
         AdvanceDialogue();
     }
 
-    // Update is called once per frame
     void Update()
     {
-        if(Input.GetKeyDown(KeyCode.Space))
+        if (story != null && Input.GetKeyDown(KeyCode.Space))
         {
-            //Is there more to the story?
-            if(story.canContinue)
-            {
-                AdvanceDialogue();
-
-                //Are there any choices?
-                if (story.currentChoices.Count != 0)
-                {
-                    StartCoroutine(ShowChoices());
-                }
-            }
-            else
-            {
-                FinishDialogue();
-            }
+            AdvanceDialogue();
         }
     }
 
-    private void FinishDialogue()
-    {
-        Debug.Log("End of Dialogue!");
-    }
-
-    // Advance through the story 
     void AdvanceDialogue()
     {
-        string currentSentence = story.Continue();
-        StopAllCoroutines();
-        StartCoroutine(TypeSentence(currentSentence));
+        if (story == null) return;
+
+        if (story.canContinue)
+        {
+            string currentSentence = story.Continue();
+            Debug.Log(currentSentence);
+
+            ParseTags(currentSentence);
+
+            if (story.currentChoices.Count != 0)
+            {
+                StartCoroutine(ShowChoices());
+            }
+        }
+        else
+        {
+            FinishDialogue();
+        }
     }
 
-    IEnumerator TypeSentence(string sentence, float delayTime = 0.025f)
+    void ParseTags(string currentSentence)
     {
-        message.text = "";
-        Debug.Log(message);
-        foreach(char letter in sentence.ToCharArray())
+        tags = story.currentTags;
+        foreach (string t in tags)
         {
-            message.text += letter;
-            yield return new WaitForSeconds(delayTime);
+            string prefix = t.Split(' ')[0];
+            string param = t.Split(' ')[1];
+            Debug.Log(prefix);
+            Debug.Log(param);
+            switch (prefix.ToLower())
+            {
+                case "speaker":
+                    ShowSpeechBubble(currentSentence, param);
+                    break;
+            }
         }
-        yield return null;
+    }
+
+    private void ShowSpeechBubble(string currentSentence, string speaker)
+    {
+        // Hide all speech bubbles
+        foreach (NPCInteraction npc in FindObjectsOfType<NPCInteraction>())
+        {
+            npc.HideSpeech();
+        }
+
+        // Show the correct NPC’s speech bubble
+        foreach (NPCInteraction npc in FindObjectsOfType<NPCInteraction>())
+        {
+            if (npc.npcName == speaker)
+            {
+                npc.ShowSpeech(currentSentence);
+                return;
+            }
+        }
     }
 
     IEnumerator ShowChoices()
@@ -100,7 +126,7 @@ public class DialogueManager : MonoBehaviour
         story.ChooseChoiceIndex(choiceSelected.index);
     }
 
-     void AdvanceFromDecision()
+    void AdvanceFromDecision()
     {
         optionPanel.SetActive(false);
         for (int i = 0; i < optionPanel.transform.childCount; i++)
@@ -109,6 +135,19 @@ public class DialogueManager : MonoBehaviour
         }
         choiceSelected = null; // Forgot to reset the choiceSelected. Otherwise, it would select an option without player intervention.
         AdvanceDialogue();
+    }
+
+    private void FinishDialogue()
+    {
+        Debug.Log("End of Dialogue!");
+
+        foreach (NPCInteraction npc in FindObjectsOfType<NPCInteraction>())
+        {
+            npc.HideSpeech();
+        }
+
+        story = null;
+        isDialoguePlaying = false;
     }
 
 }

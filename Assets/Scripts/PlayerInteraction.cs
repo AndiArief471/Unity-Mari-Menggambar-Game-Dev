@@ -50,6 +50,7 @@ public class PlayerInteraction : MonoBehaviour
         if (currentInteractable != null && Input.GetKeyDown(interactionKey))
         {
             currentInteractable.Interact();
+            promptText.enabled = false;
         }
     }
     // public TextMeshProUGUI promptText;

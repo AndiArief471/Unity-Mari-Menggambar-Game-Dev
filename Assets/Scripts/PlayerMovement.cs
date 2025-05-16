@@ -20,6 +20,12 @@ public class PlayerMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (DialogueManager.isDialoguePlaying)
+        {
+            rb.velocity = Vector2.zero; // Freeze movement
+            return; // Don't process movement or interaction
+        }
+
         speedX = Input.GetAxisRaw("Horizontal") * moveSpeed;
         rb.velocity = new Vector2(speedX, 0);
         // promptText.text = interactionText;
