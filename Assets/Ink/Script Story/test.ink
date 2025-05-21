@@ -49,13 +49,16 @@ Not exactly... but my compass stopped working an hour ago.
 #speaker Grin
 Figures. Well, what now?
 
-*   [Look around the area] 
-    -> look_around
-*   [Ask Grin for advice]
+...
+
+
+*   [Ask grin for advice] 
     -> ask_grin
+*   [Look around the area]
+    -> look_around
 *   [Head deeper into the woods]
     -> go_deeper
-
+    
 === look_around ===
 #speaker Player
 Let's check our surroundings first.

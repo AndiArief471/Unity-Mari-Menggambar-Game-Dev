@@ -17,6 +17,10 @@ public class NPCInteraction : Interactable
 
     [Header("Prompt")]
     public string textPrompt;
+    public float typingSpeed { get; private set; } = 0.025f;
+    public bool IsTyping { get; private set; } = false;
+    private Coroutine typingCoroutine;
+    private string fullSentence;
 
     public string GetPrompt()
     {
@@ -25,7 +29,6 @@ public class NPCInteraction : Interactable
 
     public override void Interact()
     {
-        Debug.Log("Start dialogue with: " + inkyJSON.name);
         DialogueManager.Instance.StartDialogue(inkyJSON);
     }
 
@@ -35,7 +38,8 @@ public class NPCInteraction : Interactable
         {
             speechBubble.SetActive(true);
             StopAllCoroutines();
-            StartCoroutine(TypeSentence(currentSentence));
+            fullSentence = currentSentence;
+            typingCoroutine = StartCoroutine(TypeSentence(fullSentence));
         }
         else
         {
@@ -52,14 +56,29 @@ public class NPCInteraction : Interactable
         }
     }
 
-    IEnumerator TypeSentence(string sentence, float delayTime = 0.025f)
+    IEnumerator TypeSentence(string sentence)
     {
+        IsTyping = true;
         speechText.text = "";
         foreach (char letter in sentence.ToCharArray())
         {
             speechText.text += letter;
-            yield return new WaitForSeconds(delayTime);
+            yield return new WaitForSeconds(typingSpeed);
         }
+        IsTyping = false;
         yield return null;
+    }
+
+    public bool FinishTyping()
+    {
+        if (IsTyping)
+        {
+            if (typingCoroutine != null)
+                StopCoroutine(typingCoroutine);
+            speechText.text = fullSentence;
+            IsTyping = false;
+            return true;
+        }
+        return false;
     }
 }

@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using Ink.Runtime;
+using Unity.VisualScripting;
 
 public class DialogueManager : MonoBehaviour
 {
@@ -11,9 +12,11 @@ public class DialogueManager : MonoBehaviour
     public GameObject customButton;
     public GameObject optionPanel;
     public static bool isDialoguePlaying { get; private set; } = false;
+    public static bool isChoiceOptionAppear { get; private set; } = false;
 
     static Story story;
     static Choice choiceSelected;
+    public CameraManager cameraManager;
     List<string> tags;
 
     private void Awake()
@@ -33,8 +36,13 @@ public class DialogueManager : MonoBehaviour
 
     void Update()
     {
-        if (story != null && Input.GetKeyDown(KeyCode.Space))
+        if (story != null && Input.GetKeyDown(KeyCode.Space) && !isChoiceOptionAppear)
         {
+            // First, check if any NPC is still typing
+            foreach (NPCInteraction npc in FindObjectsOfType<NPCInteraction>())
+            {
+                if (npc.FinishTyping()) return;
+            }
             AdvanceDialogue();
         }
     }
@@ -46,6 +54,7 @@ public class DialogueManager : MonoBehaviour
         if (story.canContinue)
         {
             string currentSentence = story.Continue();
+
             Debug.Log(currentSentence);
 
             ParseTags(currentSentence);
@@ -68,8 +77,6 @@ public class DialogueManager : MonoBehaviour
         {
             string prefix = t.Split(' ')[0];
             string param = t.Split(' ')[1];
-            Debug.Log(prefix);
-            Debug.Log(param);
             switch (prefix.ToLower())
             {
                 case "speaker":
@@ -81,11 +88,7 @@ public class DialogueManager : MonoBehaviour
 
     private void ShowSpeechBubble(string currentSentence, string speaker)
     {
-        // Hide all speech bubbles
-        foreach (NPCInteraction npc in FindObjectsOfType<NPCInteraction>())
-        {
-            npc.HideSpeech();
-        }
+        HideSpeechBubble();
 
         // Show the correct NPC’s speech bubble
         foreach (NPCInteraction npc in FindObjectsOfType<NPCInteraction>())
@@ -98,11 +101,18 @@ public class DialogueManager : MonoBehaviour
         }
     }
 
+    private void HideSpeechBubble()
+    {
+        // Hide all speech bubbles
+        foreach (NPCInteraction npc in FindObjectsOfType<NPCInteraction>())
+        {
+            npc.HideSpeech();
+        }
+    }
+
     IEnumerator ShowChoices()
     {
-        Debug.Log("There are choices need to be made here!");
         List<Choice> _choices = story.currentChoices;
-        Debug.Log(_choices.Count);
 
         for (int i = 0; i < _choices.Count; i++)
         {
@@ -114,6 +124,9 @@ public class DialogueManager : MonoBehaviour
         }
 
         optionPanel.SetActive(true);
+        isChoiceOptionAppear = true;
+        HideSpeechBubble();
+        cameraManager.SwitchCamera(cameraManager.choicePanelCam);
 
         yield return new WaitUntil(() => { return choiceSelected != null; });
 
@@ -122,29 +135,46 @@ public class DialogueManager : MonoBehaviour
 
     public static void SetDecision(object element)
     {
-        choiceSelected = (Choice)element;
+        choiceSelected = element as Choice;
         story.ChooseChoiceIndex(choiceSelected.index);
+        if (choiceSelected.index == 0) { // To overcame Empty line appearing when player choose the first option
+            story.Continue();
+        }
     }
 
     void AdvanceFromDecision()
     {
         optionPanel.SetActive(false);
+        isChoiceOptionAppear = false;
+        cameraManager.SwitchCamera(cameraManager.mainCam);
+
         for (int i = 0; i < optionPanel.transform.childCount; i++)
         {
             Destroy(optionPanel.transform.GetChild(i).gameObject);
         }
-        choiceSelected = null; // Forgot to reset the choiceSelected. Otherwise, it would select an option without player intervention.
-        AdvanceDialogue();
+
+        choiceSelected = null;
+        
+            // NEW: Call Continue again if story can continue immediately
+        if (story.canContinue)
+        {
+            AdvanceDialogue(); // show the next line
+        }
+        else if (story.currentChoices.Count > 0)
+        {
+            StartCoroutine(ShowChoices()); // show next choices if there are any
+        }
+        else
+        {
+            FinishDialogue(); // no more story
+        }
     }
 
     private void FinishDialogue()
     {
         Debug.Log("End of Dialogue!");
 
-        foreach (NPCInteraction npc in FindObjectsOfType<NPCInteraction>())
-        {
-            npc.HideSpeech();
-        }
+        HideSpeechBubble();
 
         story = null;
         isDialoguePlaying = false;

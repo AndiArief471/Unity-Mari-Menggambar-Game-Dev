@@ -29,7 +29,6 @@ public class PlayerInteraction : MonoBehaviour
             }
             promptText.enabled = true;
             promptText.text = currentPrompt;
-            Debug.Log("Test Colliding");
         }
     }
 
@@ -51,6 +50,7 @@ public class PlayerInteraction : MonoBehaviour
         {
             currentInteractable.Interact();
             promptText.enabled = false;
+            currentInteractable = null;
         }
     }
     // public TextMeshProUGUI promptText;
