@@ -7,7 +7,7 @@ public class ObjectInteraction : Interactable
     [Header("Prompt")]
     public string textPrompt;
 
-    public string GetPrompt()
+    public override string GetPrompt()
     {
         return textPrompt;
     }

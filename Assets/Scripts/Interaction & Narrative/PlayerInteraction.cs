@@ -18,15 +18,17 @@ public class PlayerInteraction : MonoBehaviour
         {
             currentInteractable = interactable;
 
+            currentPrompt = interactable.GetPrompt();
+
             // Try to get a text prompt, if the object has one
-            if (interactable is NPCInteraction npc)
-            {
-                currentPrompt = npc.GetPrompt();
-            }
-            else
-            {
-                currentPrompt = "Press E to interact"; // fallback
-            }
+            // if (interactable is NPCInteraction npc)
+            // {
+            //     currentPrompt = npc.GetPrompt();
+            // }
+            // else
+            // {
+            //     currentPrompt = "Press E to interact"; // fallback
+            // }
             promptText.enabled = true;
             promptText.text = currentPrompt;
         }
@@ -47,6 +49,7 @@ public class PlayerInteraction : MonoBehaviour
     private void Update()
     {
         if (currentInteractable != null && Input.GetKeyDown(interactionKey))
+        // if (currentInteractable != null && Input.GetMouseButton(1))
         {
             currentInteractable.Interact();
             promptText.enabled = false;

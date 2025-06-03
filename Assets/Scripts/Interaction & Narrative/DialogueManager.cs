@@ -37,6 +37,7 @@ public class DialogueManager : MonoBehaviour
     void Update()
     {
         if (story != null && Input.GetKeyDown(KeyCode.Space) && !isChoiceOptionAppear)
+        // if (story != null && Input.GetMouseButton(0) && !isChoiceOptionAppear)
         {
             // First, check if any NPC is still typing
             foreach (NPCInteraction npc in FindObjectsOfType<NPCInteraction>())

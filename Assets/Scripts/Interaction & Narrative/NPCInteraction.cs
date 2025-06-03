@@ -22,7 +22,7 @@ public class NPCInteraction : Interactable
     private Coroutine typingCoroutine;
     private string fullSentence;
 
-    public string GetPrompt()
+    public override string GetPrompt()
     {
         return textPrompt;
     }
